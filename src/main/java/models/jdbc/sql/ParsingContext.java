@@ -1,7 +1,6 @@
 package models.jdbc.sql;
 
-import static java.lang.Character.isWhitespace;
-import static java.lang.Character.toLowerCase;
+import static java.lang.Character.*;
 import static java.lang.String.format;
 import static java.util.Arrays.stream;
 
@@ -33,7 +32,7 @@ public class ParsingContext {
         consumeLeadingWhiteSpace();
         char firstUtilChar = toLowerCase(until.charAt(0));
         int untilLength = until.length();
-        int anchorIndex = pos;
+        int anchorIndex = 0;
         while (pos < content.length) {
             char scanningChar = content[pos];
             if (toLowerCase(scanningChar) == firstUtilChar) {
@@ -42,17 +41,11 @@ public class ParsingContext {
                     return new String(content, anchorIndex, pos - anchorIndex).strip();
                 }
                 pos += untilLength;
-            } else if (!isWhitespace(scanningChar)) {
-                anchorIndex = pos;
-                while (pos < content.length) {
-                    char nameChar = content[pos++];
-                    if (isWhitespace(nameChar)) {
-                        break;
-                    }
-                }
-            } else {
-                pos++;
+            } else if (isWhitespace(content[anchorIndex]) && isAlphabetic(scanningChar)) {
+                // todo
+                anchorIndex = pos - 1;
             }
+            pos++;
         }
         throw new IllegalStateException(format("Name Mismatch -- Expect %s.", until));
     }
